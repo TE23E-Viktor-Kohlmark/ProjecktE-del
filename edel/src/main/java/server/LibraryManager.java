@@ -1,3 +1,6 @@
+// Viktor köhlmark 
+// Är classen som hanterar alla andra klasser 
+
 package server;
 import java.util.ArrayList;
 import java.util.List;

@@ -1,3 +1,6 @@
+// Viktor Köhlmark
+// Hämtar information från bok 
+
 package server;
 
 public class Book extends LibraryItem {

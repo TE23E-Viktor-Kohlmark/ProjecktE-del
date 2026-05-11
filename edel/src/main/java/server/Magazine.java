@@ -1,3 +1,5 @@
+//  Viktor Köhlmark 
+// Hämtar information från tidning 
 package server;
 
 public class Magazine extends LibraryItem {
