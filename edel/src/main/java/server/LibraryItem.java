@@ -17,6 +17,6 @@ public class LibraryItem {
     public boolean isAvailable() {return isAvailable; }
 
     
-
+    // To string? 
 
 }
