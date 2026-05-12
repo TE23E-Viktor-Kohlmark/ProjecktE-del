@@ -17,4 +17,15 @@ public class LibraryManager {
         items.add(item);
     }
 
+    public void printAllItems() {
+        if(items.isEmpty()) {
+            IO.println("Listan är tom");
+
+        } else {
+            for(LibraryItem item : items) {
+                IO.println(item.toString());
+            }
+        }
+    }
+
 }
