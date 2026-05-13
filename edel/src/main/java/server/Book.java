@@ -14,8 +14,13 @@ public class Book extends LibraryItem {
         this.author = author; 
         this.genere = genere; 
         this.pages = pages; 
+ 
+    }
 
-        
+    @Override
+    public String toString() {
+        return String.format("[Bok] ID: %s | Titel: %s | Författare: %s | Sidor: %d | Tillgänglig: %b", 
+                             id, title, author, pages, isAvailable);
     }
 
 }
