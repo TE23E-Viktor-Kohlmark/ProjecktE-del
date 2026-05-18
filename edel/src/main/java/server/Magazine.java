@@ -4,15 +4,20 @@ package server;
 
 public class Magazine extends LibraryItem {
 
-    private int issueNumber; 
+    private String issueNumber; 
     private String category; 
-    private int publishYear; 
+    private String publishedYear; 
 
-    public Magazine( String id, String title, int issueNumber, String category, int publishYear, boolean isAvailable) {
+    public Magazine( String id, String title, String issueNumber, String category, String publishedYear, boolean isAvailable) {
         super(id, title, isAvailable);
         this.issueNumber = issueNumber;
         this.category = category; 
-        this.publishYear = publishYear;
+        this.publishedYear = publishedYear;
     }
-//  TODO: to string 
+
+    public String toString() {
+        return String.format("[Tidning] ID: %s | Titel: %s | IssueNumber: %s | category %s |publishedYear: %s | Tillgänglig: %b", 
+                             id, title, issueNumber, category, publishedYear, isAvailable);
+    
+                        }
 }

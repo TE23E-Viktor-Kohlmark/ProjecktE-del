@@ -21,6 +21,7 @@ public class Main {
                     2. Hämta alla tining
                     3. Skriv ut hämtad data
                     4. Lägg till en bok/tidning
+                    5. Avsluta
                         """);
 
             String choice = scanner.nextLine();
@@ -35,5 +36,4 @@ public class Main {
             }
         }
     }
-}
-    
+}   

@@ -81,9 +81,10 @@ public class LibraryManager {
 
     public void addItem() {
         IO.println("""
+            \n 
                 1. Book
-                2. Magazin
-                3. Absluta
+                2. Magazine
+                3. Avsluta
                 """);
         
         String choisce = IO.readln();
@@ -91,29 +92,29 @@ public class LibraryManager {
         switch (choisce) {
             case "1":
                 IO.println("Lägger till en bok");
-                String id = "books" + (books.size() + 1);
+                String id = String.valueOf(books.size() + 1);
                 String title = IO.readln("Skriv titel på boken: ");
                 String author = IO.readln("Skriv författare på boken: ");
-                String genere = IO.readln("Skriv changer på boken: ");
+                String genere = IO.readln("Skriv gener på boken: ");
                 String pagesStr = IO.readln("Skriv sidor på boken: ");
                 int pages = Integer.parseInt(pagesStr);
 
-                Book book = new Book(id, title, author, genere, 0, false);
+                Book book = new Book(id, title, author, genere, pages, true);
                 books.add(book);
+                break; 
 
             case "2":
-                IO.println("Lägger till en bok");
-                id = "magazines" + (magazines.size() + 1);
-                title = IO.readln("Skriv titel på boken: ");
-                author = IO.readln("Skriv författare på boken: ");
-                genere = IO.readln("Skriv changer på boken: ");
-                pagesStr = IO.readln("Skriv issueNumber på boken: ");
-                pages = Integer.parseInt(pagesStr);
-                String publishYearStr = IO.readln("Skriv när den blev publiserad på boken: ");
-                int publishYear = Integer.parseInt(publishYearStr);
+                IO.println("Lägger till ett magazine");
+                id = String.valueOf(books.size() + 1);
+                title = IO.readln("Skriv titel på magazine: ");
+                String issueNumber = IO.readln("Skriv issueNumber på magazine: ");
+                String category = IO.readln("Skriv kategorin på magazine: ");
+                genere = IO.readln("Skriv gener på magazine: ");
+                String publishedYear = IO.readln("Skriv när den blev publiserad på boken: ");
 
-                Magazine magazine = new Magazine(id, title, pages, genere, publishYear, false);
+                Magazine magazine = new Magazine(id, title, issueNumber, category, publishedYear, true);
                 magazines.add(magazine);
+                break; 
 
             default:
                 break;
