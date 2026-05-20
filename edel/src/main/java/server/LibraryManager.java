@@ -121,4 +121,34 @@ public class LibraryManager {
         }
     }
 
+    public void sendToServer() {
+        // Listor av magazin och böker 
+        // Jämföra med den som servern ha 
+        // Lägg till de som sakans(det nya bökerna)
+        // Ge användaren en bekräftelse 
+    Gson gson = new Gson(); 
+    try {
+        String booksJson = gson.toJson(books);
+        String magazinesJson = gson.toJson(magazines); 
+
+        HttpResponse<String> bookResponse = Unirest.post(baseURL + "/books")
+        .header("Content-Type", "application/json")
+        .body(booksJson)
+        .asString()
+        ;
+        HttpResponse<String> magaziResponse = Unirest.post(baseURL + "/magazines")
+        .header("Content-Type", "application/json")
+        .body(magazinesJson)
+        .asString()
+        ;
+
+        if (bookResponse.getStatus() == 200 && magaziResponse.getStatus() == 200) {
+            IO.println("Alla data har skickats till servern");
+        }else {
+            IO.println("Servern to inte emot all data" + bookResponse.getStatus() + magaziResponse.getStatus());
+        }
+
+    } catch (Exception e) {
+IO.println("Kunde inte ansluta till servern: " + e.getMessage());    }
+    }
 }

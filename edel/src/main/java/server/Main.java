@@ -31,7 +31,8 @@ public class Main {
                 case "2": manager.fetchData("/magazines");break;
                 case "3": manager.printAllItems();break;
                 case "4": manager.addItem(); break;
-                case "5": running = false; break;
+                case "5": manager.sendToServer(); break; 
+                case "6": running = false; break;
                 default: break;
             }
         }
