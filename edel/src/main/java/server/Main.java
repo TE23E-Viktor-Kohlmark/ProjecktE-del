@@ -21,7 +21,11 @@ public class Main {
                     2. Hämta alla tining
                     3. Skriv ut hämtad data
                     4. Lägg till en bok/tidning
-                    5. Avsluta
+                    5. Synca server 
+                    6. Sök efter bok 
+                    7. Hämta användare 
+                    8. Ta bort användare eller bok 
+                    9. Avsluta
                         """);
 
             String choice = scanner.nextLine();
@@ -32,7 +36,13 @@ public class Main {
                 case "3": manager.printAllItems();break;
                 case "4": manager.addItem(); break;
                 case "5": manager.sendToServer(); break; 
-                case "6": running = false; break;
+                case "6": 
+                String title = IO.readln("Skriv titel på magazin eller bok");
+                manager.searchTitle(title); 
+                break; 
+                case "7": manager.fetchData("/users"); manager.fetchData("/suspended"); break; 
+                case "8": manager.removeMenu();break; 
+                case "9": running = false; break;
                 default: break;
             }
         }
