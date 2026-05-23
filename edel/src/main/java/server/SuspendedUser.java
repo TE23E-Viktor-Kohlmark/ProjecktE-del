@@ -5,15 +5,12 @@ public class SuspendedUser {
 protected String userID; 
 protected String reason; 
 
-SuspendedUser(String id, String userID, String reson ) {
+SuspendedUser(String id, String userID ) {
     this.id = id; 
     this.userID = userID; 
-    this.reason = reson;
 }
 
-public String getReson() {
-    return reason;
-}
+
 public String getId() {
     return id;
 }
@@ -23,8 +20,8 @@ public String getReason() {
 
 @Override 
 public String toString() {
-    return String.format("[AVSTÄNGD] Spärr-ID: %s | Användar-ID: %s | Orsak: %s", 
-                             id, userID, reason); 
+    return String.format("[AVSTÄNGD] Spärr-ID: %s | Användar-ID: %s", 
+                             id, userID); 
 }
 
 // public String toString() {
