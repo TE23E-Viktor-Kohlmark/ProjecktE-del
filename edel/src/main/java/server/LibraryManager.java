@@ -604,6 +604,39 @@ public void fetchData(String urlEnd) {
         }
 
     }
+
+public void fetchSingleItemMenu() {
+    boolean running = true; 
+    while (running) {
+        IO.println("""
+                1. Hämta en bok
+                2. Hämta ett magazin
+                3. Hämta en användare 
+                4. Hämta en avstängd användare 
+                """);
+                String choise = IO.readln("Meny: ");
+                String id = IO.readln("Skriv id på det du vill hämta: ");
+                switch (choise) {
+                    case "1":
+                        fetchSingleItem("/books", id);
+                        break;
+
+                        case "2": 
+                        fetchSingleItem("/magazines", id);break;
+                        case "3": 
+                        fetchSingleItem("/users", id);break; 
+                        case "4": 
+                        fetchSingleItem("/suspended", id); break;
+                        case "5": 
+                        running = false; 
+                        break;
+                    default:
+
+                        break;
+                }
+    }
+}
+
     public void fetchSingleItem(String urlEnd, String id) {
      try {
         HttpResponse<String> response = Unirest.get(baseURL + urlEnd + "/" + id).asString();

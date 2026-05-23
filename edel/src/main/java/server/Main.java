@@ -74,7 +74,9 @@ public class Main {
                 case "7": 
                     manager.sendToServer();
                     break; 
-                case "8": 
+                case"8": 
+                
+                case "9": 
                     IO.println("Programet avslutas");
                     running = false; 
                     break;
