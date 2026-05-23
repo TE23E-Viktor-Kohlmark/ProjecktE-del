@@ -361,5 +361,19 @@ try {
             }
         }
     }
+    public void suspendUser(SuspendedUser sUser) {
+
+        Gson gson = new Gson(); 
+        String json = gson.toJson(sUser);
+        HttpResponse<String> response = Unirest.post(baseURL + "/suspended")
+        .header("Content-Type", "application/json")
+        .body(json)
+        .asString();
+        if (response.getStatus() == 200) {
+            suspednUsers.add(sUser);
+        }else {
+            IO.println("Servern nekade " + response.getStatus());
+        }
+    }
 
 }
