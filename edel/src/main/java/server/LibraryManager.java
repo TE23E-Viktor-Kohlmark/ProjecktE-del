@@ -138,6 +138,9 @@ public class LibraryManager {
 
         switch (choisce) {
             case "1":
+
+                books.clear();
+                fetchData("/books");
                 IO.println("Lägger till en bok");
                 String id = String.valueOf(books.size() + 1);
                 String title = IO.readln("Skriv titel på boken: ");
@@ -157,7 +160,7 @@ public class LibraryManager {
                             .body(jsonBook)
                             .asString();
 
-                    if (response.getStatus() == 200) {
+                    if (response.getStatus() == 200 || response.getStatus() == 201) {
                         IO.println("Boken har sparats till servern");
                     } else {
                         IO.println("Servern tog inte emot boken " + response.getStatus());
@@ -178,11 +181,11 @@ public class LibraryManager {
                 String publishedYear = IO.readln("Skriv när den blev publiserad på boken: ");
 
                 Magazine magazine = new Magazine(id, title, issueNumber, category, publishedYear, true);
-try {
+                try {
                     Gson gson = new Gson();
                     String jsonMagazine = gson.toJson(magazine);
 
-                    HttpResponse<String> response = Unirest.post(baseURL + "/magazine")
+                    HttpResponse<String> response = Unirest.post(baseURL + "/magazine/" + id)
                             .header("Content-Type", "application/json")
                             .body(jsonMagazine)
                             .asString();
@@ -351,29 +354,63 @@ try {
         for (User b : users) {
             if (b.getEmail().toLowerCase().contains(searchEmailLower)) {
                 String id = b.getId();
-                for (int i = 0; i < users.size(); i++) {
-                    if (users.get(i).getId().equalsIgnoreCase(id)) {
-                        IO.println("Tog bort användaren: " + users.get(i).getName());
-                        users.remove(i);
-                        return;
+
+                HttpResponse<String> response = Unirest.delete(baseURL + "/user" + id).asString();
+                if (response.getStatus() == 200) {
+
+                    for (int i = 0; i < users.size(); i++) {
+                        if (users.get(i).getId().equalsIgnoreCase(id)) {
+                            IO.println("Tog bort användaren: " + users.get(i).getName());
+                            users.remove(i);
+                            return;
+                        }
                     }
+                } else {
+                    IO.println("Servern kunde inte ta bort användaren");
                 }
             }
         }
     }
+
     public void suspendUser(SuspendedUser sUser) {
 
-        Gson gson = new Gson(); 
+        Gson gson = new Gson();
         String json = gson.toJson(sUser);
         HttpResponse<String> response = Unirest.post(baseURL + "/suspended")
-        .header("Content-Type", "application/json")
-        .body(json)
-        .asString();
+                .header("Content-Type", "application/json")
+                .body(json)
+                .asString();
         if (response.getStatus() == 200) {
             suspednUsers.add(sUser);
-        }else {
+        } else {
             IO.println("Servern nekade " + response.getStatus());
         }
     }
 
+    public boolean isUserSuspended(String userID) {
+        for (SuspendedUser suspended : suspednUsers) {
+            if (suspended.getId().equalsIgnoreCase(userID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void borrowBook() {
+        String val = IO.readln(" SKriv in ID till användaren som vill låna bok: ");
+
+        if (isUserSuspended(val)) {
+            IO.println("Personen får inte låna boken");
+
+            for (SuspendedUser suspended : suspednUsers) {
+                if (suspended.getId().equalsIgnoreCase(val)) {
+                    IO.println("Beror på grund av: " + suspended.getReason());
+                } else {
+                    IO.println("Användaren får låna boken");
+                }
+            }
+
+        }
+
+    }
 }

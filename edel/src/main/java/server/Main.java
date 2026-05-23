@@ -25,7 +25,8 @@ public class Main {
                     6. Sök efter bok 
                     7. Hämta användare 
                     8. Ta bort användare eller bok 
-                    9. Avsluta
+                    9. Får användaren låna en bok
+                    10. Avsluta
                         """);
 
             String choice = scanner.nextLine();
@@ -42,7 +43,8 @@ public class Main {
                 break; 
                 case "7": manager.fetchData("/users"); manager.fetchData("/suspended"); break; 
                 case "8": manager.removeMenu();break; 
-                case "9": running = false; break;
+                case "9": manager.borrowBook(); break; 
+                case "10": running = false; break;
                 default: break;
             }
         }
