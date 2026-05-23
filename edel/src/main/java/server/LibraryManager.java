@@ -333,12 +333,12 @@ public void fetchData(String urlEnd) {
             String choise = IO.readln();
             switch (choise) {
                 case "1":
-                    String id = IO.readln("Skriv id till boken du vill ta bort: ");
-                    removeBook(id);
+                    String title = IO.readln("Skriv titeln på boken du vill ta bort: ");
+                    removeBook(title);
                     break;
                 case "2":
-                    id = IO.readln("Skriv id till magazin du vill ta bort: ");
-                    removeMagazine(id);
+                    title = IO.readln("Skriv titeln på tidningen du vill ta bort: ");
+                    removeMagazine(title);
                     break;
 
                 case "3":
@@ -355,12 +355,12 @@ public void fetchData(String urlEnd) {
     // Kontroll av server svar
     // Bortagning
 
-    public void removeBook(String id) {
-    String searchId = id.toLowerCase();
+    public void removeBook(String title) {
+    String searchTitle = title.toLowerCase();
 
     try {
         for (Book b : books) {
-            if (b.getTitle().toLowerCase().contains(searchId)) {
+            if (b.getTitle().toLowerCase().contains(searchTitle)) {
                 String Finalid = b.getId(); 
 
                 HttpResponse<String> response = Unirest.delete(baseURL + "/books/" + Finalid).asString();
@@ -387,19 +387,19 @@ public void fetchData(String urlEnd) {
      * Tar bort magazin på samma sätt som bökerna ovan
      */
 
-    public void removeMagazine(String id) {
-    String searchId = id.toLowerCase();
+    public void removeMagazine(String title) {
+    String searchTitle = title.toLowerCase();
 
     try {
         for (Magazine b : magazines) {
-            if (b.getTitle().toLowerCase().contains(searchId)) {
+            if (b.getTitle().toLowerCase().contains(searchTitle)) {
                 String Finalid = b.getId(); 
 
                 HttpResponse<String> response = Unirest.delete(baseURL + "/magazines/" + Finalid).asString();
                 
                 if (response.getStatus() == 200 || response.getStatus() == 204) {
                     IO.println("Tog bort tidningen " + b.getTitle());
-                    books.remove(b); 
+                    magazines.remove(b); 
                     return; 
                 } else {
                     IO.println("Kunde inte ta bort tidningen " + response.getStatus());
@@ -408,14 +408,12 @@ public void fetchData(String urlEnd) {
             } 
         } 
         
-        IO.println("Kunde inte hitta någon bok med den titeln.");
+        IO.println("Kunde inte hitta någon tidning med den titeln.");
 
     } catch (Exception e) { 
         IO.println("Kunde inte kommunicera med servern " + e.getMessage());
     }
 }
-
-    // -------------- Användar hantering --------------
 
     // Meny system för användare
 
@@ -427,7 +425,8 @@ public void fetchData(String urlEnd) {
                     2. Skapa en avnändare
                     3. Stäng av en användare
                     4. Ta bort en avnändare
-                    5. avsluta
+                    5. Ta bort avstängning (häv spärr med spärr-ID)
+                    6. avsluta
                         """);
 
             String choise = IO.readln();
@@ -447,6 +446,10 @@ public void fetchData(String urlEnd) {
                     removeUser(searchEmail);
                     break;
                 case "5":
+                    String suspId = IO.readln("Skriv id att ta bort: ");
+                    removeSuspendedUser(suspId);
+                    break;
+                case "6":
                     running = false;
                     break;
 
@@ -504,9 +507,8 @@ public void fetchData(String urlEnd) {
         IO.println("Lägger till en avstängd användare");
         String id = String.valueOf(suspednUsers.size() + 1);
         String userId = IO.readln("Skriv userId till : ");
-        String reason = IO.readln("Skriv anledning till avstängning: ");
 
-        SuspendedUser suspendedUser = new SuspendedUser(id, userId, reason);
+        SuspendedUser suspendedUser = new SuspendedUser(id, userId);
         try {
             Gson gson = new Gson();
             String jsonBook = gson.toJson(suspendedUser);
@@ -593,18 +595,12 @@ public void fetchData(String urlEnd) {
         if (isUserSuspended(val)) {
             IO.println("Personen får inte låna");
 
-            for (SuspendedUser suspended : suspednUsers) {
-                if (suspended.getUserId().equalsIgnoreCase(val)) {
-                    IO.println("Beror på grund av: " + suspended.getReason());
-                }
-            }
-
         } else {
             IO.println("Användaren får låna");
         }
 
     }
-
+// Menyn för hämtandet av informatio n
 public void fetchSingleItemMenu() {
     boolean running = true; 
     while (running) {
@@ -613,29 +609,36 @@ public void fetchSingleItemMenu() {
                 2. Hämta ett magazin
                 3. Hämta en användare 
                 4. Hämta en avstängd användare 
+                5. Avsluta
                 """);
                 String choise = IO.readln("Meny: ");
-                String id = IO.readln("Skriv id på det du vill hämta: ");
                 switch (choise) {
                     case "1":
+                        String id = IO.readln("Skriv id på boken du vill hämta: ");
                         fetchSingleItem("/books", id);
                         break;
-
-                        case "2": 
-                        fetchSingleItem("/magazines", id);break;
-                        case "3": 
-                        fetchSingleItem("/users", id);break; 
-                        case "4": 
-                        fetchSingleItem("/suspended", id); break;
-                        case "5": 
+                    case "2": 
+                        id = IO.readln("Skriv id på tidningen du vill hämta: ");
+                        fetchSingleItem("/magazines", id);
+                        break;
+                    case "3": 
+                        id = IO.readln("Skriv id på användaren du vill hämta: ");
+                        fetchSingleItem("/users", id);
+                        break; 
+                    case "4": 
+                        id = IO.readln("Skriv id på avstängningen du vill hämta: ");
+                        fetchSingleItem("/suspended", id);
+                        break;
+                    case "5": 
                         running = false; 
                         break;
                     default:
-
                         break;
                 }
     }
 }
+
+/* Fungerer på samma sätt som fetch, men eftersom man speciferar id hämtar den bara en sak */
 
     public void fetchSingleItem(String urlEnd, String id) {
      try {
@@ -645,36 +648,25 @@ public void fetchSingleItemMenu() {
             IO.println("Information hämtas");
 
             Gson gson = new Gson();
+            String responseBody = response.getBody();
 
             if (urlEnd.contains("books")) {
-                books.clear();
-                String responseBody = response.getBody();
-                List<Book> fetched = gson.fromJson(responseBody, new TypeToken<List<Book>>() {}.getType());
-                IO.println(fetched);
-
+                Book fetched = gson.fromJson(responseBody, Book.class);
+                IO.println(fetched.toString());
             } else if (urlEnd.contains("magazines")) {
-                magazines.clear();
-                String responseBody = response.getBody();
-                List<Magazine> fetched = gson.fromJson(responseBody, new TypeToken<List<Magazine>>() {}.getType());
-                IO.println(fetched);
-                
+                Magazine fetched = gson.fromJson(responseBody, Magazine.class);
+                IO.println(fetched.toString());
             } else if (urlEnd.contains("users")) {
-                users.clear();
-                String responseBody = response.getBody();
-                List<User> fetched = gson.fromJson(responseBody, new TypeToken<List<User>>() {}.getType());
-                IO.println(fetched);
-                
+                User fetched = gson.fromJson(responseBody, User.class);
+                IO.println(fetched.toString());
             } else if (urlEnd.contains("suspended")) {
-                suspednUsers.clear();
-                String responseBody = response.getBody();
-                List<SuspendedUser> fetched = gson.fromJson(responseBody, new TypeToken<List<SuspendedUser>>() {}.getType());
-                IO.println(fetched);
+                SuspendedUser fetched = gson.fromJson(responseBody, SuspendedUser.class);
+                IO.println(fetched.toString());
             }
             
-            IO.println("Datan sparad");
+            IO.println("Datan visad");
             
         } else {
-            // Tydlig feedback om servern returnerar t.ex. 404 eller 500 (Krav för C-nivå)
             IO.println("Kunde inte hämta data. Servern svarade med statuskod: " + response.getStatus());
         }
 
@@ -682,5 +674,25 @@ public void fetchSingleItemMenu() {
         IO.println("Error på grund av: " + e.getMessage()); 
     }
    
+    }
+
+    public void removeSuspendedUser(String id) {
+        try {
+            HttpResponse<String> response = Unirest.delete(baseURL + "/suspended/" + id).asString();
+            if (response.getStatus() == 200 || response.getStatus() == 204) {
+                for (int i = 0; i < suspednUsers.size(); i++) {
+                    if (suspednUsers.get(i).getId().equalsIgnoreCase(id)) {
+                        IO.println("Tog bort avstängningen (Spärr-ID: " + id + ")");
+                        suspednUsers.remove(i);
+                        return;
+                    }
+                }
+                IO.println("Avstängningen borttagen på servern.");
+            } else {
+                IO.println("Kunde inte ta bort avstängningen: " + response.getStatus());
+            }
+        } catch (Exception e) {
+            IO.println("Kunde inte kommunicera med servern: " + e.getMessage());
+        }
     }
 }

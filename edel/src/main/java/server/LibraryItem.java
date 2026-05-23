@@ -1,5 +1,8 @@
 package server;
 
+/*Viktor Köhlmark 
+Är en parent klass till alla library items det vill säga magazin och böker 
+*/
 public class LibraryItem  implements Comparable<LibraryItem> {
     protected String id; 
     protected String title; 

@@ -25,7 +25,8 @@ public class Main {
                     5. Bok och magazin haterings system 
                     6. Kund hanterings system
                     7. Synca till servern 
-                    8. Avsluta
+                    8. Hämta enskild post från servern
+                    9. Avsluta
                         """);
 
             String choice = scanner.nextLine();
@@ -74,8 +75,9 @@ public class Main {
                 case "7": 
                     manager.sendToServer();
                     break; 
-                case"8": 
-                
+                case "8": 
+                    manager.fetchSingleItemMenu();
+                    break;
                 case "9": 
                     IO.println("Programet avslutas");
                     running = false; 

@@ -1,14 +1,13 @@
 package server;
-
+// Viktor Köhlmark 
+// Är klassen som tar hand om de avstänga användarna 
 public class SuspendedUser {
     protected String id;
-protected String userId; 
-protected String reason; 
+    protected String userId; 
 
-    public SuspendedUser(String id, String userId, String reason) {
+    public SuspendedUser(String id, String userId) {
         this.id = id; 
         this.userId = userId; 
-        this.reason = reason;
     }
 
 public String getId() {
@@ -17,9 +16,7 @@ public String getId() {
 public String getUserId() {
     return userId;
 }
-    public String getReason() {
-        return reason;
-    }
+
 @Override 
 public String toString() {
     return String.format("[AVSTÄNGD] Spärr-ID: %s | Användar-ID: %s", 

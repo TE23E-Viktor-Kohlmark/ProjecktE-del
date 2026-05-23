@@ -1,4 +1,5 @@
 package server;
+// ÄR den klass som tar hand om kativa användare eller user 
 
 public class User implements Comparable<User> {
 protected String name;  
