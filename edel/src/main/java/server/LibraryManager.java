@@ -96,54 +96,51 @@ public class LibraryManager {
      * 3. Ändrar get requesten genom gson till json format
      * 4. Lägger in den sparade datan till den lokala listan
      */
+public void fetchData(String urlEnd) {
+    try {
+        HttpResponse<String> response = Unirest.get(baseURL + urlEnd).asString();
 
-    public void fetchData(String urlEnd) {
+        if (response.getStatus() == 200) {
+            IO.println("Information hämtas");
 
-        try {
-            HttpResponse<String> response = Unirest.get(baseURL + urlEnd).asString();
+            Gson gson = new Gson();
 
-            if (response.getStatus() == 200) {
-                IO.println("Information hämtas");
+            if (urlEnd.contains("books")) {
+                books.clear();
+                String responseBody = response.getBody();
+                List<Book> fetched = gson.fromJson(responseBody, new TypeToken<List<Book>>() {}.getType());
+                books.addAll(fetched);
 
-                Gson gson = new Gson();
-
-                if (urlEnd.contains("books")) {
-                    books.clear();
-                    String responseBody = response.getBody();
-                    List<Book> fetched = gson.fromJson(responseBody, new TypeToken<List<Book>>() {
-                    }.getType());
-                    books.addAll(fetched);
-
-                } else if (urlEnd.contains("magazines")) {
-                    magazines.clear();
-                    String responseBody = response.getBody();
-                    List<Magazine> fetched = gson.fromJson(responseBody, new TypeToken<List<Magazine>>() {
-                    }.getType());
-                    magazines.addAll(fetched);
-                } else if (urlEnd.contains("users")) {
-                    users.clear();
-                    String responseBody = response.getBody();
-                    List<User> fetched = gson.fromJson(responseBody, new TypeToken<List<User>>() {
-                    }.getType());
-                    users.addAll(fetched);
-                } else if (urlEnd.contains("suspended")) {
-                    suspednUsers.clear();
-                    String responseBody = response.getBody();
-                    List<SuspendedUser> fetched = gson.fromJson(responseBody, new TypeToken<List<SuspendedUser>>() {
-                    }.getType());
-                    suspednUsers.addAll(fetched);
-
-                }
-                IO.println("Datan sparad");
-            } else {
-                IO.println("Kunde int hämta data " + response.getStatus());
+            } else if (urlEnd.contains("magazines")) {
+                magazines.clear();
+                String responseBody = response.getBody();
+                List<Magazine> fetched = gson.fromJson(responseBody, new TypeToken<List<Magazine>>() {}.getType());
+                magazines.addAll(fetched);
+                
+            } else if (urlEnd.contains("users")) {
+                users.clear();
+                String responseBody = response.getBody();
+                List<User> fetched = gson.fromJson(responseBody, new TypeToken<List<User>>() {}.getType());
+                users.addAll(fetched);
+                
+            } else if (urlEnd.contains("suspended")) {
+                suspednUsers.clear();
+                String responseBody = response.getBody();
+                List<SuspendedUser> fetched = gson.fromJson(responseBody, new TypeToken<List<SuspendedUser>>() {}.getType());
+                suspednUsers.addAll(fetched);
             }
-        } catch (
-
-        UnirestException e) {
-            IO.println("Kunde inte hämta data " + e.getMessage());
+            
+            IO.println("Datan sparad");
+            
+        } else {
+            // Tydlig feedback om servern returnerar t.ex. 404 eller 500 (Krav för C-nivå)
+            IO.println("Kunde inte hämta data. Servern svarade med statuskod: " + response.getStatus());
         }
+
+    } catch (Exception e) {
+        IO.println("Error på grund av: " + e.getMessage()); 
     }
+}
 
     // Listor av magazin och böker
     // Lägg till de som sakans(det nya bökerna)
@@ -224,7 +221,7 @@ public class LibraryManager {
                     break;
                 case "2":
                     removeMenu();
-                    break; 
+                    break;
                 case "3":
                     running = false;
                     break;
@@ -257,7 +254,14 @@ public class LibraryManager {
                 String author = IO.readln("Skriv författare på boken: ");
                 String genere = IO.readln("Skriv gener på boken: ");
                 String pagesStr = IO.readln("Skriv sidor på boken: ");
-                int pages = Integer.parseInt(pagesStr);
+
+                int pages = 0; 
+                
+                try {
+                    pages = Integer.parseInt(pagesStr); 
+                } catch (NumberFormatException e) {
+                    IO.println("Felaktig inmatning: Sidor måste anges i siffror! Sätter sidor till 0.");
+                }
 
                 Book book = new Book(id, title, author, genere, pages, true);
 
@@ -286,7 +290,7 @@ public class LibraryManager {
                 title = IO.readln("Skriv titel på magazine: ");
                 String issueNumber = IO.readln("Skriv issueNumber på magazine: ");
                 String category = IO.readln("Skriv kategorin på magazine: ");
-                String publishedYear = IO.readln("Skriv när den blev publiserad på boken: ");
+                String publishedYear = IO.readln("Skriv när den blev publiserad på tidningen: ");
 
                 Magazine magazine = new Magazine(id, title, issueNumber, category, publishedYear, true);
                 try {
@@ -323,8 +327,7 @@ public class LibraryManager {
             IO.println("""
                     1. Ta bort en bok
                     2. Ta bort magazin
-                    3. Ta bort en avnändare
-                    4. Avsluta
+                    3. Avsluta
                     """);
 
             String choise = IO.readln();
@@ -353,50 +356,64 @@ public class LibraryManager {
     // Bortagning
 
     public void removeBook(String id) {
+    String searchId = id.toLowerCase();
 
-        try {
-            HttpResponse<String> response = Unirest.delete(baseURL + "/books/" + id).asString();
-            if (response.getStatus() == 200 || response.getStatus() == 204) {
+    try {
+        for (Book b : books) {
+            if (b.getTitle().toLowerCase().contains(searchId)) {
+                String Finalid = b.getId(); 
 
-                for (int i = 0; i < books.size(); i++) {
-                    if (books.get(i).getID().equalsIgnoreCase(id)) {
-                        IO.println("Tog bort boken " + books.get(i).getTitle());
-                        books.remove(i);
-                        return;
-                    }
+                HttpResponse<String> response = Unirest.delete(baseURL + "/books/" + Finalid).asString();
+                
+                if (response.getStatus() == 200 || response.getStatus() == 204) {
+                    IO.println("Tog bort boken " + b.getTitle());
+                    books.remove(b); // Tar bort boken direkt ur listan
+                    return; // Avslutar metoden framgångsrikt!
+                } else {
+                    IO.println("Kunde inte ta bort boken " + response.getStatus());
+                    return;
                 }
-            } else {
-                IO.println("Kunde inte ta bort boken " + response.getStatus());
-            }
-        } catch (Exception e) {
-            IO.println("Kunde inte komunicera med servern " + e.getMessage());
-        }
+            } 
+        } 
+        
+        IO.println("Kunde inte hitta någon bok med den titeln.");
 
+    } catch (Exception e) { 
+        IO.println("Kunde inte kommunicera med servern " + e.getMessage());
     }
+} 
+
     /*
      * Tar bort magazin på samma sätt som bökerna ovan
      */
 
     public void removeMagazine(String id) {
-        try {
-            HttpResponse<String> response = Unirest.delete(baseURL + "/magazines/" + id).asString();
-            if (response.getStatus() == 200 || response.getStatus() == 204) {
+    String searchId = id.toLowerCase();
 
-                for (int i = 0; i < magazines.size(); i++) {
-                    if (magazines.get(i).getID().equalsIgnoreCase(id)) {
-                        IO.println("Tog bort tidningen " + magazines.get(i).getTitle());
-                        magazines.remove(i);
-                        return;
-                    }
+    try {
+        for (Magazine b : magazines) {
+            if (b.getTitle().toLowerCase().contains(searchId)) {
+                String Finalid = b.getId(); 
+
+                HttpResponse<String> response = Unirest.delete(baseURL + "/magazines/" + Finalid).asString();
+                
+                if (response.getStatus() == 200 || response.getStatus() == 204) {
+                    IO.println("Tog bort tidningen " + b.getTitle());
+                    books.remove(b); 
+                    return; 
+                } else {
+                    IO.println("Kunde inte ta bort tidningen " + response.getStatus());
+                    return;
                 }
-            } else {
-                IO.println("Kunde inte ta bort boken " + response.getStatus());
-            }
-        } catch (Exception e) {
-            IO.println("Kunde inte komunicera med servern " + e.getMessage());
-        }
+            } 
+        } 
+        
+        IO.println("Kunde inte hitta någon bok med den titeln.");
 
+    } catch (Exception e) { 
+        IO.println("Kunde inte kommunicera med servern " + e.getMessage());
     }
+}
 
     // -------------- Användar hantering --------------
 
@@ -486,9 +503,10 @@ public class LibraryManager {
         fetchData("/suspended");
         IO.println("Lägger till en avstängd användare");
         String id = String.valueOf(suspednUsers.size() + 1);
-        String userID = IO.readln("Skriv userID till : ");
+        String userId = IO.readln("Skriv userId till : ");
+        String reason = IO.readln("Skriv anledning till avstängning: ");
 
-        SuspendedUser suspendedUser = new SuspendedUser(id, userID);
+        SuspendedUser suspendedUser = new SuspendedUser(id, userId, reason);
         try {
             Gson gson = new Gson();
             String jsonBook = gson.toJson(suspendedUser);
@@ -558,9 +576,9 @@ public class LibraryManager {
 
     // En metod för att kontrolera om en användare får låna eller inte retunerar ja
     // eller nej
-    public boolean isUserSuspended(String userID) {
+    public boolean isUserSuspended(String userId) {
         for (SuspendedUser suspended : suspednUsers) {
-            if (suspended.getUserID().equalsIgnoreCase(userID)) {
+            if (suspended.getUserId().equalsIgnoreCase(userId)) {
                 return true;
             }
         }
@@ -575,9 +593,61 @@ public class LibraryManager {
         if (isUserSuspended(val)) {
             IO.println("Personen får inte låna");
 
+            for (SuspendedUser suspended : suspednUsers) {
+                if (suspended.getUserId().equalsIgnoreCase(val)) {
+                    IO.println("Beror på grund av: " + suspended.getReason());
+                }
+            }
+
         } else {
             IO.println("Användaren får låna");
         }
 
+    }
+    public void fetchSingleItem(String urlEnd, String id) {
+     try {
+        HttpResponse<String> response = Unirest.get(baseURL + urlEnd + "/" + id).asString();
+
+        if (response.getStatus() == 200) {
+            IO.println("Information hämtas");
+
+            Gson gson = new Gson();
+
+            if (urlEnd.contains("books")) {
+                books.clear();
+                String responseBody = response.getBody();
+                List<Book> fetched = gson.fromJson(responseBody, new TypeToken<List<Book>>() {}.getType());
+                IO.println(fetched);
+
+            } else if (urlEnd.contains("magazines")) {
+                magazines.clear();
+                String responseBody = response.getBody();
+                List<Magazine> fetched = gson.fromJson(responseBody, new TypeToken<List<Magazine>>() {}.getType());
+                IO.println(fetched);
+                
+            } else if (urlEnd.contains("users")) {
+                users.clear();
+                String responseBody = response.getBody();
+                List<User> fetched = gson.fromJson(responseBody, new TypeToken<List<User>>() {}.getType());
+                IO.println(fetched);
+                
+            } else if (urlEnd.contains("suspended")) {
+                suspednUsers.clear();
+                String responseBody = response.getBody();
+                List<SuspendedUser> fetched = gson.fromJson(responseBody, new TypeToken<List<SuspendedUser>>() {}.getType());
+                IO.println(fetched);
+            }
+            
+            IO.println("Datan sparad");
+            
+        } else {
+            // Tydlig feedback om servern returnerar t.ex. 404 eller 500 (Krav för C-nivå)
+            IO.println("Kunde inte hämta data. Servern svarade med statuskod: " + response.getStatus());
+        }
+
+    } catch (Exception e) {
+        IO.println("Error på grund av: " + e.getMessage()); 
+    }
+   
     }
 }

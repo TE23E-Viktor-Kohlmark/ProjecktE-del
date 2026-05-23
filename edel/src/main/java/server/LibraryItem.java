@@ -12,7 +12,7 @@ public class LibraryItem  implements Comparable<LibraryItem> {
 
     }
 
-    public String getID() {return id; }
+    public String getId() {return id; }
     public String getTitle() {return title; }
     public boolean isAvailable() {return isAvailable; }
 

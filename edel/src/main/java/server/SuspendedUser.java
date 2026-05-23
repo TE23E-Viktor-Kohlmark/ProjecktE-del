@@ -2,25 +2,28 @@ package server;
 
 public class SuspendedUser {
     protected String id;
-protected String userID; 
+protected String userId; 
 protected String reason; 
 
-SuspendedUser(String id, String userID ) {
-    this.id = id; 
-    this.userID = userID; 
-}
-
+    public SuspendedUser(String id, String userId, String reason) {
+        this.id = id; 
+        this.userId = userId; 
+        this.reason = reason;
+    }
 
 public String getId() {
     return id;
 }
-public String getUserID() {
-    return userID;
+public String getUserId() {
+    return userId;
 }
+    public String getReason() {
+        return reason;
+    }
 @Override 
 public String toString() {
     return String.format("[AVSTÄNGD] Spärr-ID: %s | Användar-ID: %s", 
-                             id, userID); 
+                             id, userId); 
 }
 
 // public String toString() {

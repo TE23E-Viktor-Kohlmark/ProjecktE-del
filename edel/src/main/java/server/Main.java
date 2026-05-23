@@ -72,11 +72,12 @@ public class Main {
                     manager.userManagerMenu();
                     break;
                 case "7": 
-                manager.sendToServer();
-                break; 
+                    manager.sendToServer();
+                    break; 
                 case "8": 
-                IO.println("Programet avslutas");
-                running = false; 
+                    IO.println("Programet avslutas");
+                    running = false; 
+                    break;
 
                 default:
                     break;
