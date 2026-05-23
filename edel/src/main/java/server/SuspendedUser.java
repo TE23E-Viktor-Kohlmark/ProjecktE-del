@@ -14,10 +14,9 @@ SuspendedUser(String id, String userID ) {
 public String getId() {
     return id;
 }
-public String getReason() {
-    return reason;
+public String getUserID() {
+    return userID;
 }
-
 @Override 
 public String toString() {
     return String.format("[AVSTÄNGD] Spärr-ID: %s | Användar-ID: %s", 

@@ -78,10 +78,10 @@ public class LibraryManager {
     }
 
     public void printAllItems() {
-        fetchData("books");
-        fetchData("magazines");
-        fetchData("users");
-        fetchData("suspended");
+        fetchData("/books");
+        fetchData("/magazines");
+        fetchData("/users");
+        fetchData("/suspended");
 
         printBooks();
         printMagazines();
@@ -224,6 +224,7 @@ public class LibraryManager {
                     break;
                 case "2":
                     removeMenu();
+                    break; 
                 case "3":
                     running = false;
                     break;
@@ -285,7 +286,6 @@ public class LibraryManager {
                 title = IO.readln("Skriv titel på magazine: ");
                 String issueNumber = IO.readln("Skriv issueNumber på magazine: ");
                 String category = IO.readln("Skriv kategorin på magazine: ");
-                genere = IO.readln("Skriv gener på magazine: ");
                 String publishedYear = IO.readln("Skriv när den blev publiserad på boken: ");
 
                 Magazine magazine = new Magazine(id, title, issueNumber, category, publishedYear, true);
@@ -293,12 +293,12 @@ public class LibraryManager {
                     Gson gson = new Gson();
                     String jsonMagazine = gson.toJson(magazine);
 
-                    HttpResponse<String> response = Unirest.post(baseURL + "/magazine")
+                    HttpResponse<String> response = Unirest.post(baseURL + "/magazines")
                             .header("Content-Type", "application/json")
                             .body(jsonMagazine)
                             .asString();
 
-                    if (response.getStatus() == 200 && response.getStatus() == 201) {
+                    if (response.getStatus() == 200 || response.getStatus() == 201) {
                         IO.println("Tidningen har sparats till servern");
                     } else {
                         IO.println("Servern tog inte emot tidningen " + response.getStatus());
@@ -322,7 +322,7 @@ public class LibraryManager {
         while (running) {
             IO.println("""
                     1. Ta bort en bok
-                    3. Ta bort magazin
+                    2. Ta bort magazin
                     3. Ta bort en avnändare
                     4. Avsluta
                     """);
@@ -560,7 +560,7 @@ public class LibraryManager {
     // eller nej
     public boolean isUserSuspended(String userID) {
         for (SuspendedUser suspended : suspednUsers) {
-            if (suspended.getId().equalsIgnoreCase(userID)) {
+            if (suspended.getUserID().equalsIgnoreCase(userID)) {
                 return true;
             }
         }
@@ -574,12 +574,6 @@ public class LibraryManager {
 
         if (isUserSuspended(val)) {
             IO.println("Personen får inte låna");
-
-            for (SuspendedUser suspended : suspednUsers) {
-                if (suspended.getId().equalsIgnoreCase(val)) {
-                    IO.println("Beror på grund av: " + suspended.getReason());
-                }
-            }
 
         } else {
             IO.println("Användaren får låna");

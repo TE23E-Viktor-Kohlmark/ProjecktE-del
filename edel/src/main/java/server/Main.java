@@ -73,6 +73,7 @@ public class Main {
                     break;
                 case "7": 
                 manager.sendToServer();
+                break; 
                 case "8": 
                 IO.println("Programet avslutas");
                 running = false; 
