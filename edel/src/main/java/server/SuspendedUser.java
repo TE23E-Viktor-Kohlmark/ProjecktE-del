@@ -12,4 +12,11 @@ SuspendedUser(String userID, String reson ) {
 public String getReson() {
     return reson;
 }
+
+// public String toString() {
+//         return String.format("[User] Name: %s | Id: %s | Email: %s ", 
+//                              name, id, email);
+//     }
+
+
 }

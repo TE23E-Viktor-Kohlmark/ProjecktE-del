@@ -1,6 +1,6 @@
 package server;
 
-public class User {
+public class User implements Comparable<User> {
 protected String name;  
 protected String id ;
 protected String email;
@@ -25,6 +25,11 @@ public String getId() {
 public String toString() {
         return String.format("[User] Name: %s | Id: %s | Email: %s ", 
                              name, id, email);
+    }
+
+    @Override
+    public int compareTo(User other) {
+        return this.name.compareToIgnoreCase(other.getName());
     }
 }
 

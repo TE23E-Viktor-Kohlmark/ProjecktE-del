@@ -4,7 +4,10 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import org.apache.http.protocol.HTTP;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,27 +32,38 @@ public class LibraryManager {
     }
 
     public void printBooks() {
-        System.out.println("\n--- BÖCKER ---");
+        IO.println("\n--- BÖCKER ---");
         if (books.isEmpty())
             System.out.println("Inga böcker sparade.");
-        for (Book b : books)
-            System.out.println(b.toString());
+        else {
+            Collections.sort(books);
+            for (Book b : books)
+                System.out.println(b.toString());
+        }
     }
 
     public void printMagazines() {
         System.out.println("\n--- TIDNINGAR ---");
         if (magazines.isEmpty())
             System.out.println("Inga tidningar sparade.");
-        for (Magazine m : magazines)
-            System.out.println(m.toString());
+        else {
+
+            Collections.sort(magazines);
+            for (Magazine m : magazines)
+                System.out.println(m.toString());
+        }
     }
 
     public void printUsers() {
         System.out.println("\n--- Users ---");
         if (users.isEmpty())
             System.out.println("Inga användare sparade.");
-        for (User m : users)
-            System.out.println(m.toString());
+        else {
+
+            Collections.sort(users);
+            for (User m : users)
+                System.out.println(m.toString());
+        }
     }
 
     public void printsuspendenUSers() {
@@ -67,7 +81,7 @@ public class LibraryManager {
         printsuspendenUSers();
     }
 
-    public static String baseURL = "http://10.151.168.5:3149";
+    public static String baseURL = "http://localhost:3000";
 
     public void fetchData(String urlEnd) {
         try {
@@ -133,7 +147,25 @@ public class LibraryManager {
                 int pages = Integer.parseInt(pagesStr);
 
                 Book book = new Book(id, title, author, genere, pages, true);
-                books.add(book);
+
+                try {
+                    Gson gson = new Gson();
+                    String jsonBook = gson.toJson(book);
+
+                    HttpResponse<String> response = Unirest.post(baseURL + "/books")
+                            .header("Content-Type", "application/json")
+                            .body(jsonBook)
+                            .asString();
+
+                    if (response.getStatus() == 200) {
+                        IO.println("Boken har sparats till servern");
+                    } else {
+                        IO.println("Servern tog inte emot boken " + response.getStatus());
+                    }
+                } catch (Exception e) {
+                    IO.println("Kunde inte ta kontakt med servern " + e.getMessage());
+                }
+
                 break;
 
             case "2":
@@ -146,7 +178,23 @@ public class LibraryManager {
                 String publishedYear = IO.readln("Skriv när den blev publiserad på boken: ");
 
                 Magazine magazine = new Magazine(id, title, issueNumber, category, publishedYear, true);
-                magazines.add(magazine);
+try {
+                    Gson gson = new Gson();
+                    String jsonMagazine = gson.toJson(magazine);
+
+                    HttpResponse<String> response = Unirest.post(baseURL + "/magazine")
+                            .header("Content-Type", "application/json")
+                            .body(jsonMagazine)
+                            .asString();
+
+                    if (response.getStatus() == 200) {
+                        IO.println("Tidningen har sparats till servern");
+                    } else {
+                        IO.println("Servern tog inte emot tidningen " + response.getStatus());
+                    }
+                } catch (Exception e) {
+                    IO.println("Kunde inte ta kontakt med servern " + e.getMessage());
+                }
                 break;
 
             default:
@@ -164,11 +212,11 @@ public class LibraryManager {
             String magazinesJson = gson.toJson(magazines);
 
             HttpResponse<String> bookResponse = Unirest.post(baseURL + "/books")
-                    .header("Content-Type", "application/json")
+                    .header("placeholder", "application/json")
                     .body(booksJson)
                     .asString();
             HttpResponse<String> magaziResponse = Unirest.post(baseURL + "/magazines")
-                    .header("Content-Type", "application/json")
+                    .header("placeholder", "application/json")
                     .body(magazinesJson)
                     .asString();
 
@@ -203,6 +251,18 @@ public class LibraryManager {
 
     }
 
+    public void searchUser(String searchEmail) {
+        IO.println("Sök efter användare ");
+
+        String searchEmailLower = searchEmail.toLowerCase();
+
+        for (User b : users) {
+            if (b.getEmail().toLowerCase().contains(searchEmailLower)) {
+                IO.println(" " + b.toString());
+            }
+        }
+    }
+
     // Ta bort en användare eller item
     public void removeMenu() {
         Boolean running = true;
@@ -222,11 +282,11 @@ public class LibraryManager {
                     break;
                 case "2":
                     id = IO.readln("Skriv id till magazin du vill ta bort: ");
-                    removeBook(id);
+                    removeMagazine(id);
                     break;
                 case "3":
-                    id = IO.readln("Skriv id till användraen du vill ta bort: ");
-                    removeBook(id);
+                    String email = IO.readln("Skriv id till användraen du vill ta bort: ");
+                    removeUser(email);
                     break;
                 case "4":
                     running = false;
@@ -236,37 +296,70 @@ public class LibraryManager {
             }
         }
     }
+    // Metoden avser att ta dbort böker som finns i servern genom id
+    // Först sickas ett delet anrop
+    // Kontroll av server svar
+    // Bortagning
 
     public void removeBook(String id) {
-        for (int i = 0; i < books.size(); i++) {
-            if (books.get(i).getID().equalsIgnoreCase(id)) {
-                IO.println("Tog bort boken " + books.get(i).getTitle());
-                books.remove(i);
-                return;
+
+        try {
+            HttpResponse<String> response = Unirest.delete(baseURL + "/books/" + id).asString();
+            if (response.getStatus() == 200 || response.getStatus() == 204) {
+
+                for (int i = 0; i < books.size(); i++) {
+                    if (books.get(i).getID().equalsIgnoreCase(id)) {
+                        IO.println("Tog bort boken " + books.get(i).getTitle());
+                        books.remove(i);
+                        return;
+                    }
+                }
+            } else {
+                IO.println("Kunde inte ta bort boken " + response.getStatus());
             }
+        } catch (Exception e) {
+            IO.println("Kunde inte komunicera med servern " + e.getMessage());
         }
+
     }
 
     public void removeMagazine(String id) {
-        for (int i = 0; i < magazines.size(); i++) {
-            if (magazines.get(i).getID().equalsIgnoreCase(id)) {
-                IO.println("Tog bort tidningen: " + magazines.get(i).getTitle());
-                magazines.remove(i);
-                return;
+        try {
+            HttpResponse<String> response = Unirest.delete(baseURL + "/magazines/" + id).asString();
+            if (response.getStatus() == 200 || response.getStatus() == 204) {
+
+                for (int i = 0; i < magazines.size(); i++) {
+                    if (magazines.get(i).getID().equalsIgnoreCase(id)) {
+                        IO.println("Tog bort tidningen " + magazines.get(i).getTitle());
+                        magazines.remove(i);
+                        return;
+                    }
+                }
+            } else {
+                IO.println("Kunde inte ta bort boken " + response.getStatus());
+            }
+        } catch (Exception e) {
+            IO.println("Kunde inte komunicera med servern " + e.getMessage());
+        }
+
+    }
+
+    // Sök först i vanliga användare
+    public void removeUser(String email) {
+
+        String searchEmailLower = email.toLowerCase();
+        for (User b : users) {
+            if (b.getEmail().toLowerCase().contains(searchEmailLower)) {
+                String id = b.getId();
+                for (int i = 0; i < users.size(); i++) {
+                    if (users.get(i).getId().equalsIgnoreCase(id)) {
+                        IO.println("Tog bort användaren: " + users.get(i).getName());
+                        users.remove(i);
+                        return;
+                    }
+                }
             }
         }
     }
 
-    // Sök först i vanliga användare
-    public void removeUser(String id) {
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getId().equalsIgnoreCase(id)) {
-                IO.println("Tog bort användaren: " + users.get(i).getName());
-                users.remove(i);
-                return;
-            }
-        }
-    IO.println("Kunde inte hitta någon användare eller avstängd användare med ID: " + id);
-    }
-    
 }

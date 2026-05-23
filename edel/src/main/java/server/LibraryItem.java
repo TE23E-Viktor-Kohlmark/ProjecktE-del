@@ -1,6 +1,6 @@
 package server;
 
-public class LibraryItem {
+public class LibraryItem  implements Comparable<LibraryItem> {
     protected String id; 
     protected String title; 
     protected boolean isAvailable;
@@ -16,6 +16,10 @@ public class LibraryItem {
     public String getTitle() {return title; }
     public boolean isAvailable() {return isAvailable; }
 
+    @Override 
+    public int compareTo(LibraryItem other) {
+        return this.title.compareToIgnoreCase(other.getTitle()); 
+    }
     
 
 }
